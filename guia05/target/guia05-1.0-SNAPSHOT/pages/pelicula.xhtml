@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/resources/template/Template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:components="http://xmlns.jcp.org/jsf/composite/components"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <ui:define name="title">#{PropiedadesPelicula['txt.header.pelicula']}</ui:define>
+    <ui:define name="content">
+        <h:form id="datos">
+            <h:panelGrid id="tabla" rendered="#{peliculaBean.estado=='VISTA'}">
+                <p:dataTable id="peliculas" var="p" value="#{peliculaBean.modelo}"  rendered="#{not empty peliculaBean.modelo}" selection="#{peliculaBean.registro}" rowKey="#{p.idPelicula}"
+                             selectionMode="single" paginator="true" rows="10" paginatorPosition="bottom" lazy="true" tableStyle="table.greenTable">
+                    <f:facet name="header">
+                        <h:outputText value="#{PropiedadesPelicula['txt.header.pelicula']}"/>
+                    </f:facet>
+                    <p:column headerText="#{PropiedadesPelicula['txt.pelicula.id']}">
+                        <h:outputText value="#{p.idPelicula}" />
+                    </p:column>
+                    <p:column headerText="#{PropiedadesPelicula['txt.pelicula.titulo']}">
+                        <h:outputText value="#{p.titulo}" />
+                    </p:column>
+                    <p:column headerText="#{PropiedadesPelicula['txt.pelicula.director']}" visible="false">
+                        <h:outputText value="#{p.idDirector.nombre} #{p.idDirector.apellido}" />
+                    </p:column>
+                    <p:column headerText="#{PropiedadesPelicula['txt.pelicula.duracion']}" visible="false">
+                        <h:outputText value="#{p.duracion}" />
+                    </p:column>
+                    <p:column headerText="#{PropiedadesPelicula['txt.pelicula.genero']}" visible="false">
+                        <h:outputText value="#{not empty p.generoList?peliculaBean.getRegistroGenero(p.generoList):'Sin especificar'}"/>
+                    </p:column>
+                    <p:column headerText="#{PropiedadesPelicula['txt.pelicula.clasificacion']}" visible="false">
+                        <h:outputText value="#{p.idClasificacion.clasificacion}" />
+                    </p:column>                
+                    <p:column headerText="#{PropiedadesPelicula['txt.pelicula.fecha']}">
+                        <h:outputText value="#{p.fechaEstreno}" >
+                            <f:convertDateTime pattern="dd/MM/yyyy"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:ajax event="rowSelect" listener="#{peliculaBean.onRowSelect}" update="datos :form top:botonesTop"/>
+                    <f:facet name="footer">
+                        <div style="float:right;padding-top: 5px;">
+                            <h:commandLink>
+                                <p:graphicImage library="images" name="pdf.png" width="20"/>
+                                <p:dataExporter type="pdf" target="peliculas" fileName="peliculas"/>
+                            </h:commandLink>
+                        </div>
+                        <p:outputLabel value="#{PropiedadesPelicula['txt.footer.pelicula']}"/>
+                    </f:facet>
+                </p:dataTable>
+            </h:panelGrid>
+        </h:form>
+        <components:botonesTop id="top" backingBean="#{peliculaBean}" update=":datos :form botonesTop" btnNuevo="#{PropiedadesBotones['btn.top.nuevo.pelicula']}"/>
+        <h:form id="form">
+            <h:panelGrid columns="2" id="peliculaDetail" rendered="#{peliculaBean.estado!='VISTA'}">
+                <p:outputLabel value="#{PropiedadesPelicula['txt.pelicula.id']}:"/>
+                <p:inputText value="#{peliculaBean.registro.idPelicula}" disabled="#{peliculaBean.estado != 'AGREGAR'}" required="#{peliculaBean.estado!='CANCELAR'}"/>
+
+                <p:outputLabel value="#{PropiedadesPelicula['txt.pelicula.titulo']}:" />
+                <p:inputText value="#{peliculaBean.registro.titulo}" required="#{peliculaBean.estado!='CANCELAR'}" disabled="#{peliculaBean.estado == 'DETALLES'}"/>
+
+                <p:outputLabel value="#{PropiedadesPelicula['txt.pelicula.director']}:" />
+                <p:selectOneMenu value="#{peliculaBean.registro.idDirector}" required="#{peliculaBean.estado!='CANCELAR'}" disabled="#{peliculaBean.estado == 'DETALLES'}" converter="omnifaces.SelectItemsConverter">
+                    <f:selectItem  itemValue="#{null}" itemLabel="#{PropiedadesPelicula['txt.select.director']}"/>
+                    <f:selectItems value="#{peliculaBean.allDirector}" var="d" itemValue="#{d}" itemLabel="#{d.nombre} #{d.apellido}"/>
+                </p:selectOneMenu>
+                <p:outputLabel value="#{PropiedadesPelicula['txt.pelicula.duracion']}:"/>
+                <p:inputText value="#{peliculaBean.registro.duracion}" required="#{peliculaBean.estado!='CANCELAR'}" disabled="#{peliculaBean.estado == 'DETALLES'}"/>
+                <p:outputLabel value="#{PropiedadesPelicula['txt.pelicula.genero']}:"/>
+                <p:autoComplete id="generos" multiple="true" value="#{peliculaBean.registro.generoList}" completeMethod="#{peliculaBean.generoFindByNombreLike}"
+                                var="g" itemLabel="#{g.nombre}" itemValue="#{g}" converter="generoConverter" disabled="#{peliculaBean.estado == 'DETALLES'}" forceSelection="true">
+                </p:autoComplete>
+                <p:outputLabel value="#{PropiedadesPelicula['txt.pelicula.clasificacion']}:"/>
+                <p:selectOneMenu value="#{peliculaBean.registro.idClasificacion}" required="#{peliculaBean.estado!='CANCELAR'}" disabled="#{peliculaBean.estado == 'DETALLES'}" converter="omnifaces.SelectItemsConverter">
+                    <f:selectItem  itemValue="#{null}" itemLabel="#{PropiedadesPelicula['txt.select.clasificacion']}"/>
+                    <f:selectItems value="#{peliculaBean.allClasificacion}" var="c" itemValue="#{c}" itemLabel="#{c.clasificacion}"/>
+                </p:selectOneMenu>
+                <p:outputLabel value="#{PropiedadesPelicula['txt.pelicula.fecha']}:"/>
+                <p:datePicker value="#{peliculaBean.registro.fechaEstreno}" required="#{peliculaBean.estado!='CANCELAR'}" disabled="#{peliculaBean.estado == 'DETALLES'}"/>
+                <p:outputLabel value="#{PropiedadesPelicula['txt.pelicula.sinopsis']}:" />
+                <p:inputTextarea value="#{peliculaBean.registro.sinopsis}" required="#{peliculaBean.estado!='CANCELAR'}" cols="33" rows="6" disabled="#{peliculaBean.estado == 'DETALLES'}"/>
+            </h:panelGrid>
+            <components:botonesCRUD  backingBean="#{peliculaBean}" update="form :datos :top:botonesTop" updateThis="form"/>
+        </h:form>
+    </ui:define>
+</ui:composition>
+

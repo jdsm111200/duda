@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="http://xmlns.jcp.org/jsf/composite"
+      xmlns:p="http://primefaces.org/ui">
+
+    <!-- INTERFACE -->
+    <cc:interface>
+        <cc:attribute name="backingBean" required="true"/>
+        <cc:attribute name="update" default="form :datos"/>
+        <cc:attribute name ="updateThis" default="form"/>
+    </cc:interface>
+
+    <!-- IMPLEMENTATION -->
+    <cc:implementation>
+        <p:commandButton value="#{PropiedadesBotones['btn.crud.agregar']}" actionListener="#{cc.attrs.backingBean.btnAgregarHandler}" update="#{cc.attrs.update}" rendered="#{cc.attrs.backingBean.estado=='AGREGAR'}"/>
+        <p:commandButton value="#{PropiedadesBotones['btn.crud.editar']}" actionListener="#{cc.attrs.backingBean.btnEditarEnable}"  update="#{cc.attrs.updateThis}" rendered="#{cc.attrs.backingBean.estado=='DETALLES'}"/>
+        <p:commandButton value="#{PropiedadesBotones['btn.crud.guardar']}" actionListener="#{cc.attrs.backingBean.btnEditarHandler}" update="#{cc.attrs.update}" rendered="#{cc.attrs.backingBean.estado=='EDITAR'}"/>
+        <p:commandButton value="#{PropiedadesBotones['btn.crud.eliminar']}"  actionListener="#{cc.attrs.backingBean.btnEliminarHandler}" update="#{cc.attrs.update}" rendered="#{cc.attrs.backingBean.estado=='DETALLES'}"/>
+    </cc:implementation>
+</html>
